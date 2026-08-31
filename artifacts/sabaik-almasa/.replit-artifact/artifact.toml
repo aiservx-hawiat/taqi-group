@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "سبائك الماسة"
+description = "موقع مؤسسة تقي جروب لخدمات تأجير الحاويات ونقل الأنقاض ومخلفات البناء بالرياض، مع صفحات الخدمات والطلبات والتواصل."
+version = "1.0.0"
+id = "artifacts/sabaik-almasa"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19770
+
+[services.development]
+run = "pnpm --filter @workspace/sabaik-almasa run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/sabaik-almasa", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/sabaik-almasa/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19770"
+BASE_PATH = "/"

@@ -1,0 +1,26 @@
+CleanFlow project source copy (lite)
+
+Included:
+- Full project source code under artifacts/, lib/, and scripts/
+- Package manifests, lockfiles, TypeScript/Python/Replit configuration
+- Documentation and small source public files
+- Current SQLite database: data/sabaik.db
+- SQLite WAL/SHM sidecar files when present
+- Root uploads/ and attached_assets/ except embedded ZIP archives
+
+Excluded intentionally:
+- node_modules and all dependency folders
+- generated dist/ folders and build_php/
+- .git/, .local/, .agents/, .cache/
+- backups/, screenshots/, temporary folders, and logs
+- existing ZIP archives
+- old database backups
+- large generated/duplicated media folders:
+  artifacts/sabaik-almasa/public/images/
+  artifacts/sabaik-almasa/public/uploads/
+
+To restore dependencies locally:
+  pnpm install
+
+To regenerate generated public media/build output, use the project build scripts.
+Production Hostinger archives are separate from this source copy.
