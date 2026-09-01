@@ -5,14 +5,14 @@ generated = []
 id = "atfaMmUizOUZ1HWPKBQE_"
 uri = "file://cleanflow-services-hostinger.zip"
 type = "unspecified"
-title = "حزمة إصلاح فهرسة الموقع"
-description = "أرشيف Hostinger كامل بعد إصلاح تحويل روابط /pages/ العربية إلى صفحات /page/ canonical القابلة للفهرسة. اجتاز فحص SEO الكامل وسلامة ZIP."
+title = "حزمة Hostinger المحدثة"
+description = "أرشيف كامل جاهز للرفع إلى public_html. تم اجتياز فحص سلامة ZIP وبوابة SEO: 156 رابطاً قابلاً للفهرسة و215 صورة مستعملة، مع تضمين واجهة PHP وقاعدة SQLite والمنصة التسويقية."
 logical_id = "144ed429-a123-4d79-aced-ac2c057b66b3"
-content_hash = "sha256:5fca17604c2bf90be765ed59bf07998013ee785002fb13c9f4fa9df6627004d3"
-size = 36680759
-mtime_ms = 1788254470791
-storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:4a52957b-e6c3-4318-b452-2ced84425040/144ed429-a123-4d79-aced-ac2c057b66b3/f91e7132-f7dd-490b-8097-be28a0362847"
-storage_version_token = "1788254521579297"
+content_hash = "sha256:9e8c08bcf544fa9266d483ee30bb88351704c933ab0c0fcc4d1b9424921566f5"
+size = 36681782
+mtime_ms = 1788258838500
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:4a52957b-e6c3-4318-b452-2ced84425040/144ed429-a123-4d79-aced-ac2c057b66b3/7eb614c9-6785-4e5e-8128-931d545ddf8d"
+storage_version_token = "1788258853062138"
 content_type = "application/octet-stream"
 
 [[outputs]]
