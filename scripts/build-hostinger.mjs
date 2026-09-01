@@ -607,9 +607,20 @@ copyFileSync(ARCHIVE_SOURCE_DB, DEST_DB);
       }
     } catch {}
     if (publicOrigin) {
-      db.prepare(
-        "INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-      ).run("site_public_url", publicOrigin, new Date().toISOString());
+      // Recovery archives are rebuilt from table rows and may not carry the
+      // source table's unique indexes. Use an explicit update-then-insert
+      // instead of relying on ON CONFLICT(key), while keeping the normal
+      // unique-key behavior unchanged on healthy source databases.
+      const settingKey = "site_public_url";
+      const settingValue = new Date().toISOString();
+      const updated = db
+        .prepare("UPDATE site_settings SET value = ?, updated_at = ? WHERE key = ?")
+        .run(publicOrigin, settingValue, settingKey);
+      if (updated.changes === 0) {
+        db
+          .prepare("INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, ?)")
+          .run(settingKey, publicOrigin, settingValue);
+      }
       console.log(`  ✅ تم حفظ رابط الموقع العام داخل الإعدادات: ${publicOrigin}`);
     }
 
@@ -771,16 +782,18 @@ console.log(`  ✅ uploads/ يحتوي على ${referencedUploads.size} صورة
 // ── 7. كتابة .htaccess مع إصلاح Authorization header ─────────────────────────
 step("كتابة ملفات .htaccess");
 
-// Legacy ASCII page directories used to contain a noindex copy of the same
+// Legacy page directories used to contain a noindex copy of the same
 // document. Redirect those aliases before Apache's existing-file rule so a
-// crawler can never receive the compatibility HTML as the response.
+// crawler can never receive the compatibility HTML as the response. Slugs are
+// intentionally allowed to remain Arabic; the public canonical URLs on this
+// site preserve Arabic characters and Apache matches the decoded URL path.
 const pageCompatibilityRedirects = [];
 for (const [rootName, urlPrefix] of [["page", "page"], ["pages", "pages"]]) {
   const rootDir = join(ROOT, "build_php", rootName);
   if (!existsSync(rootDir)) continue;
   for (const entry of readdirSync(rootDir)) {
     const legacyDir = join(rootDir, entry);
-    if (!statSync(legacyDir).isDirectory() || !/^[a-z0-9-]+$/i.test(entry)) continue;
+    if (!statSync(legacyDir).isDirectory() || !/^[\p{L}\p{N}_-]+$/u.test(entry)) continue;
     const htmlPath = join(legacyDir, "index.html");
     if (!existsSync(htmlPath)) continue;
     const html = readFileSync(htmlPath, "utf8");

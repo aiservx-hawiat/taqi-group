@@ -5,14 +5,14 @@ generated = []
 id = "atfaMmUizOUZ1HWPKBQE_"
 uri = "file://cleanflow-services-hostinger.zip"
 type = "unspecified"
-title = "cleanflow-services-hostinger.zip"
-description = "حزمة Hostinger النهائية بعد إصلاح noindex وإضافة الصور الأصلية. ZIP سليم، وبوابة SEO ناجحة. SHA-256: 3ba7c1a3b6d9dd2d1c1d08c87410a75dfa8a64ec79e662cf680586bf33212ee4"
+title = "حزمة إصلاح فهرسة الموقع"
+description = "أرشيف Hostinger كامل بعد إصلاح تحويل روابط /pages/ العربية إلى صفحات /page/ canonical القابلة للفهرسة. اجتاز فحص SEO الكامل وسلامة ZIP."
 logical_id = "144ed429-a123-4d79-aced-ac2c057b66b3"
-content_hash = "sha256:3ba7c1a3b6d9dd2d1c1d08c87410a75dfa8a64ec79e662cf680586bf33212ee4"
-size = 36680470
-mtime_ms = 1788251513273
-storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:5643bc9e-f3b2-4aa3-9d5b-c2f55bfa108b/144ed429-a123-4d79-aced-ac2c057b66b3/a5c061a0-38df-4773-b9d4-b6ca12f72222"
-storage_version_token = "1788251551576265"
+content_hash = "sha256:5fca17604c2bf90be765ed59bf07998013ee785002fb13c9f4fa9df6627004d3"
+size = 36680759
+mtime_ms = 1788254470791
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:4a52957b-e6c3-4318-b452-2ced84425040/144ed429-a123-4d79-aced-ac2c057b66b3/f91e7132-f7dd-490b-8097-be28a0362847"
+storage_version_token = "1788254521579297"
 content_type = "application/octet-stream"
 
 [[outputs]]
