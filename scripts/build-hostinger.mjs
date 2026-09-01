@@ -771,6 +771,35 @@ console.log(`  ✅ uploads/ يحتوي على ${referencedUploads.size} صورة
 // ── 7. كتابة .htaccess مع إصلاح Authorization header ─────────────────────────
 step("كتابة ملفات .htaccess");
 
+// Legacy ASCII page directories used to contain a noindex copy of the same
+// document. Redirect those aliases before Apache's existing-file rule so a
+// crawler can never receive the compatibility HTML as the response.
+const pageCompatibilityRedirects = [];
+for (const [rootName, urlPrefix] of [["page", "page"], ["pages", "pages"]]) {
+  const rootDir = join(ROOT, "build_php", rootName);
+  if (!existsSync(rootDir)) continue;
+  for (const entry of readdirSync(rootDir)) {
+    const legacyDir = join(rootDir, entry);
+    if (!statSync(legacyDir).isDirectory() || !/^[a-z0-9-]+$/i.test(entry)) continue;
+    const htmlPath = join(legacyDir, "index.html");
+    if (!existsSync(htmlPath)) continue;
+    const html = readFileSync(htmlPath, "utf8");
+    if (!/<meta\s+name="robots"\s+content="noindex/i.test(html)) continue;
+    const canonical = html.match(/<link\s+rel="canonical"\s+href="([^"]+)"/i)?.[1];
+    if (!canonical) continue;
+    try {
+      const canonicalPath = new URL(canonical).pathname;
+      if (!canonicalPath.startsWith("/page/")) continue;
+      pageCompatibilityRedirects.push(
+        `  RewriteRule ^${urlPrefix}/${entry}/?$ ${canonicalPath} [R=301,L,NE]`,
+      );
+    } catch {}
+  }
+}
+const compatibilityRedirectRules = pageCompatibilityRedirects.length
+  ? `\n  # Redirect legacy page aliases to their indexable Arabic canonical URLs.\n${pageCompatibilityRedirects.join("\n")}\n`
+  : "";
+
 writeFileSync(join(ROOT, "build_php/.htaccess"), `DirectoryIndex index.html index.php
 
 <IfModule mod_rewrite.c>
@@ -789,6 +818,7 @@ writeFileSync(join(ROOT, "build_php/.htaccess"), `DirectoryIndex index.html inde
    RewriteRule ^services/?$ services/index.html [END]
    RewriteRule ^blog/?$ blog/index.html [END]
   RewriteRule ^areas/?$ areas/index.html [END]
+${compatibilityRedirectRules}
 
   # Allow direct access to existing files and directories
   RewriteCond %{REQUEST_FILENAME} -f [OR]
