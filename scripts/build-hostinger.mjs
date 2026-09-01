@@ -85,12 +85,26 @@ function inspectDatabase(dbPath) {
   try {
     const integrity = db.pragma("integrity_check", { simple: true });
     const tables = db
-      .prepare("SELECT name, rootpage FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+      .prepare("SELECT name, rootpage, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
       .all();
     return { integrity, tables };
   } finally {
     db.close();
   }
+}
+
+function createRecoveryDatabase(dbPath, sourceInfo) {
+  const recoveryDb = new Database(dbPath);
+  recoveryDb.pragma("foreign_keys=OFF");
+  for (const table of sourceInfo.tables) {
+    if (!table.sql) continue;
+    try {
+      recoveryDb.exec(table.sql);
+    } catch (error) {
+      console.warn(`  ⚠️ تعذر إنشاء مخطط ${table.name} في النسخة الأرشيفية: ${error.message}`);
+    }
+  }
+  recoveryDb.close();
 }
 
 function prepareArchiveSourceDatabase() {
@@ -124,9 +138,13 @@ function prepareArchiveSourceDatabase() {
       return false;
     }
   });
-  if (!fallback) throw new Error("لم أعثر على نسخة SQLite سليمة يمكن استخدامها لبناء الأرشيف");
-  copyFileSync(fallback, ARCHIVE_SOURCE_DB);
-  console.log(`  ✅ النسخة السليمة الأساسية: ${fallback.replace(`${ROOT}/`, "")}`);
+  if (fallback) {
+    copyFileSync(fallback, ARCHIVE_SOURCE_DB);
+    console.log(`  ✅ النسخة السليمة الأساسية: ${fallback.replace(`${ROOT}/`, "")}`);
+  } else {
+    createRecoveryDatabase(ARCHIVE_SOURCE_DB, sourceInfo);
+    console.log("  ✅ تم إنشاء قاعدة أرشيفية جديدة من مخطط المصدر");
+  }
 
   const badRootPages = new Set(
     [...String(sourceInfo.integrity).matchAll(/\bTree\s+(\d+)\b/g)].map((match) => Number(match[1])),
@@ -215,12 +233,12 @@ if (existsSync(sabaikDistDir)) rmSync(sabaikDistDir, { recursive: true, force: t
 if (existsSync(platformDistDir)) rmSync(platformDistDir, { recursive: true, force: true });
 
 run(
-  "pnpm --filter @workspace/cleanflow-services run build",
+  "pnpm --filter @workspace/sabaik-almasa run build",
   "vite build",
   { PORT: "19770", BASE_PATH: "/", NODE_ENV: "production" }
 );
 run(
-  "pnpm --filter @workspace/cleanflow-platform run build",
+  "pnpm --filter @workspace/sabaik-platform run build",
   "بناء صفحة CleanFlow Platform",
   { PORT: "19040", BASE_PATH: "/taqi-group-platform/", NODE_ENV: "production" }
 );

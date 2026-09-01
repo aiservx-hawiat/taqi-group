@@ -1,0 +1,67 @@
+المشكلة اتضحت في مسارين: النسخ القديمة المقصودة للتوافق تُوسم noindex، وهذا صحيح، لكن التطبيق نفسه يضع noindex على صفحات SEO عند فتحها عبر أي مسار غير /page/.... سأتحقق الآن من الرابط المنشور ومن الخريطة للتأكد هل Google يصل إلى النسخة الصحيحة أم إلى alias قديم، ثم أوحّد السلوك بحيث تكون النسخة الأساسية فقط قابلة للفهرسة وتُستبعد النسخ البديلة.
+
+
+
+Show less
+
+Downloaded a file
+
+Searched for "https://taqigroup\.com/…"
+
+Searched for "useDocumentSEO(|indexab…"
+Revisiting curl commands
+
+Revisiting curl commands
+
+Downloaded a file
+Avoiding command errors
+
+Avoiding command errors
+
+Downloaded a file
+
+Searched for "pages/|page/|معاينة|pre…"
+
+Opened SeoPages.tsx
+Considering metadata adjustments
+
+Considering metadata adjustments
+Considering metadata adjustments
+
+I see I have a user reminder to continue working on the project. It looks like I need to edit the preview path and enhance the SeoPage with robust metadata. I also want to ensure the live production is correctly indexed. There’s a source fix I need to make, and I should inspect the imported friendlySlug for creating a canonical path since it's already imported. I’ll check the top imports in the admin file too.
+
+
+Opened SeoPages.tsx
+Considering canonical redirects
+
+Considering canonical redirects
+Considering canonical redirects
+
+I’m thinking about updating SeoPage to manage aliases through a canonical redirect. It might be a good idea to use window.history.replaceState to change the URL without an actual redirect, which keeps it indexable. However, if the static alias file is marked as noindex before JavaScript runs, Google might still detect it as noindex. It seems safer not to go that route. I should run a type check and apply the patch only after testing.
+
+وجدت السبب العملي المحدد: زر «معاينة» في لوحة إدارة صفحات SEO كان يفتح /pages/slug، وهذه نسخة توافقية موسومة عمدًا بـ noindex. لذلك كانت المعاينة التي تُفحص في Google تُظهر الخطأ رغم أن النسخة الأساسية الموجودة في sitemap (/page/عنوان-رقم) قابلة للفهرسة. سأغيّر الزر ليفتح الرابط الأساسي القابل للفهرسة، وأضيف توضيحًا يمنع تكرار الالتباس.
+
+
+
+Show less
+
+Edited SeoPages.tsx
+Verifying code workflow
+
+Verifying code workflow
+Verifying code workflow
+
+I need to verify the code and possibly check the type. Since I've made edits, I have to restart the workflow after ensuring everything checks out. It's important to run a type check specifically, and maybe I'll take a screenshot of any significant fixes before presenting the artifact. I might also need to inspect logs from the running workflow post-edit. I can run the type check and grep in parallel, using commands to streamline this process!
+
+
+Checked for code errors
+
+Processed text
+التعديل تم. فحص الأنواع العام أظهر أخطاء قديمة واسعة في أجزاء أخرى بسبب ملفات الأنواع المشتركة غير المبنية، وليس في التعديل نفسه؛ سأعيد بناء الأنواع المشتركة ثم أعيد الفحص، وأعيد تشغيل الموقع وأراجع المعاينة والسجلات قبل التسليم.
+
+
+
+2 actions
+
+Worked for 2 minutes
+You've reached your daily free quota limit. It will reset at 12:00 AM UTC.

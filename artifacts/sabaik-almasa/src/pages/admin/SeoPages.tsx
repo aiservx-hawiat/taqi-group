@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { entityPath } from "@/lib/friendlySlug"
 
 const API_BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || ""
 const getToken = () => localStorage.getItem("admin_token") || ""
@@ -568,9 +569,18 @@ export default function SeoPages() {
                 <div className="flex items-center justify-end gap-1 border-t border-gray-100 pt-3 md:border-0 md:pt-0">
                   {page.status === "published" && (
                     <button
-                      onClick={() => window.open(`/pages/${encodeURIComponent(page.slug)}`, "_blank", "noopener,noreferrer")}
+                      onClick={() => window.open(
+                        `/page/${entityPath({
+                          slug: page.slug,
+                          title: page.title,
+                          id: page.id,
+                          fallback: "page",
+                        })}`,
+                        "_blank",
+                        "noopener,noreferrer",
+                      )}
                       className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-bold text-gray-500 transition-colors hover:bg-secondary/10 hover:text-secondary"
-                      title="معاينة الصفحة"
+                      title="معاينة النسخة القابلة للفهرسة"
                       data-testid={`button-preview-seo-page-${page.id}`}
                     >
                       <Eye size={15} />
