@@ -623,7 +623,7 @@ function RecordsPanel({ kind, records, allRecords = records, loading, onAdd, onD
   )
 }
 
-function ContainerPOS({ records, onDetails, onEdit, onAdd }: { records: ContainerSystemRecord[]; onDetails: (record: ContainerSystemRecord) => void; onEdit: (record: ContainerSystemRecord) => void; onAdd: () => void }) {
+function ContainerPOS({ records, onDetails, onEdit, onArchive, onAdd }: { records: ContainerSystemRecord[]; onDetails: (record: ContainerSystemRecord) => void; onEdit: (record: ContainerSystemRecord) => void; onArchive: (record: ContainerSystemRecord) => void; onAdd: () => void }) {
   return (
     <Card className="border-slate-200/80 shadow-[0_8px_28px_rgba(15,44,58,.05)]">
       <CardHeader className="border-b border-slate-100 px-4 py-4 sm:px-5">
@@ -642,7 +642,7 @@ function ContainerPOS({ records, onDetails, onEdit, onAdd }: { records: Containe
                 <ContainerStatusImage status={record.payload.status ?? record.status} code={code} className="h-full w-full object-contain" numberClassName="top-[45.5%]" />
                 <div className="absolute right-3 top-3"><RecordStatus status={record.status} /></div>
               </div>
-              <div className="space-y-3 p-4"><div><p className="font-black text-slate-900">{String(payload.typeName ?? payload.containerType ?? "حاوية تشغيلية")}</p><p className="mt-1 text-xs text-slate-500">{String(payload.size ?? payload.capacity ?? "الحجم غير محدد")}</p></div><div className="grid grid-cols-2 gap-2 text-xs"><div className="rounded-xl bg-slate-50 p-2"><span className="block text-[10px] text-slate-400">الموقع</span><span className="mt-1 block truncate font-bold text-slate-700">{location}</span></div><div className="rounded-xl bg-slate-50 p-2"><span className="block text-[10px] text-slate-400">العميل / التفريغ</span><span className="mt-1 block truncate font-bold text-slate-700">{nextEmptying || customer}</span></div></div><div className="flex gap-2"><Button variant="outline" size="sm" onClick={() => onDetails(record)} className="flex-1 gap-1 text-xs text-cyan-800"><FileText size={14} /> التفاصيل</Button><Button variant="outline" size="sm" onClick={() => onEdit(record)} className="gap-1 text-xs"><FilePenLine size={14} /> تعديل</Button></div></div>
+              <div className="space-y-3 p-4"><div><p className="font-black text-slate-900">{String(payload.typeName ?? payload.containerType ?? "حاوية تشغيلية")}</p><p className="mt-1 text-xs text-slate-500">{String(payload.size ?? payload.capacity ?? "الحجم غير محدد")}</p></div><div className="grid grid-cols-2 gap-2 text-xs"><div className="rounded-xl bg-slate-50 p-2"><span className="block text-[10px] text-slate-400">الموقع</span><span className="mt-1 block truncate font-bold text-slate-700">{location}</span></div><div className="rounded-xl bg-slate-50 p-2"><span className="block text-[10px] text-slate-400">العميل / التفريغ</span><span className="mt-1 block truncate font-bold text-slate-700">{nextEmptying || customer}</span></div></div><div className="flex gap-2"><Button variant="outline" size="sm" onClick={() => onDetails(record)} className="flex-1 gap-1 text-xs text-cyan-800"><FileText size={14} /> التفاصيل</Button><Button variant="outline" size="sm" onClick={() => onEdit(record)} className="gap-1 text-xs"><FilePenLine size={14} /> تعديل</Button><Button variant="outline" size="sm" onClick={() => onArchive(record)} className="gap-1 text-xs text-rose-700 hover:bg-rose-50 hover:text-rose-800" title="حذف الحاوية"><Trash2 size={14} /> حذف</Button></div></div>
             </div>
           })}
         </div>}
@@ -1232,8 +1232,13 @@ export default function ContainerSystem() {
   }
   const openEdit = (record: ContainerSystemRecord) => setDialog({ open: true, kind: (record.kind as RecordKind) || "customer", record })
   const archiveRecord = (record: ContainerSystemRecord) => {
-    if (!window.confirm(`هل تريد أرشفة السجل ${record.reference || `#${record.id}`}؟`)) return
-    archiveMutation.mutate({ id: record.id }, { onSuccess: () => { invalidate(); showSuccess("تمت أرشفة السجل") }, onError: () => toast({ title: "تعذر أرشفة السجل", variant: "destructive" }) })
+    const isContainer = ["container", "container_asset"].includes(record.kind)
+    const label = isContainer ? "الحاوية" : "السجل"
+    if (!window.confirm(`هل تريد حذف ${label} ${record.reference || `#${record.id}`}؟ ستختفي من القوائم التشغيلية ويمكن الرجوع إليها من السجل المؤرشف.`)) return
+    archiveMutation.mutate({ id: record.id }, {
+      onSuccess: () => { invalidate(); showSuccess(isContainer ? "تم حذف الحاوية" : "تمت أرشفة السجل") },
+      onError: error => toast({ title: error instanceof Error ? error.message : isContainer ? "تعذر حذف الحاوية" : "تعذر أرشفة السجل", variant: "destructive" }),
+    })
   }
   const openRecordDetails = (record: ContainerSystemRecord) => {
     if (record.kind === "customer") {
@@ -1527,8 +1532,8 @@ export default function ContainerSystem() {
               : view === "bookings" ? <DispatchCalendar records={snapshot?.records ?? records} onOpenAppointment={openRecordDetails} />
               : view === "invoice"
                 ? <InvoiceWorkspace records={records} onAdd={() => openCreate("invoice")} onDetails={record => navigate(`/admin/container-system/invoice/${record.id}/details`)} onEdit={openEdit} onArchive={archiveRecord} />
-              : view === "container"
-               ? <ContainerPOS records={records} onAdd={() => openCreate("container")} onDetails={openRecordDetails} onEdit={openEdit} />
+               : view === "container"
+                ? <ContainerPOS records={records} onAdd={() => openCreate("container")} onDetails={openRecordDetails} onEdit={openEdit} onArchive={archiveRecord} />
                 : <RecordsPanel kind={collectionKind ?? "customer"} records={records} allRecords={snapshot?.records ?? records} loading={loading} onAdd={() => openCreate(collectionKind ?? "customer")} onDetails={openRecordDetails} onEdit={openEdit} onArchive={archiveRecord} />}
         </main>
       </div>
