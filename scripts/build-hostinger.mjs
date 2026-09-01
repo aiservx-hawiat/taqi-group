@@ -375,6 +375,51 @@ function copyDirRecursive(srcDir, dstDir, relativeDir = "") {
 copyDirRecursive(distPublic, join(ROOT, "build_php"));
 console.log("  ✅ تم نسخ جميع المجلدات والصفحات الثابتة إلى build_php/");
 
+// The current workspace keeps uploaded media in the repository-level
+// uploads/ directory. Copy the stable public paths required by the sitemap
+// even when the frontend package's public/uploads directory is empty.
+{
+  const sourceUploadRoots = [
+    join(ROOT, "artifacts/sabaik-almasa/public/uploads"),
+    join(ROOT, "uploads"),
+  ];
+  const findUpload = (candidates) => candidates
+    .map((filename) => sourceUploadRoots.map((root) => join(root, filename)).find(existsSync))
+    .find(Boolean);
+  const requiredImages = {
+    "images/logo.png": ["logo.png"],
+    "images/hero-1.webp": ["hero-1.webp"],
+    "images/seo/taqi-home.jpg": ["taqi-home.jpg", "hero-1.webp"],
+    "images/seo/taqi-services.jpg": ["taqi-services.jpg", "hero-2.webp"],
+    "images/seo/taqi-containers.jpg": ["taqi-containers.jpg", "container-waste-medium.webp"],
+    "images/seo/taqi-pricing.jpg": ["taqi-pricing.jpg", "Banner-Big.webp"],
+    "images/seo/taqi-areas.jpg": ["taqi-areas.jpg", "hero-3.webp"],
+    "images/seo/taqi-blog.jpg": ["taqi-blog.jpg", "shareek-mawsouq.webp"],
+    "images/seo/taqi-about.jpg": ["taqi-about.jpg", "ceo.webp"],
+    "images/seo/taqi-contact.jpg": ["taqi-contact.jpg", "hero-4.webp"],
+    "images/seo/taqi-faq.jpg": ["taqi-faq.jpg", "container-debris-medium.webp"],
+    "images/seo/taqi-partners.jpg": ["taqi-partners.jpg", "partner-1.jpg"],
+    "images/seo/taqi-why-us.jpg": ["taqi-why-us.jpg", "good.webp"],
+    "images/seo/taqi-legal.jpg": ["taqi-legal.jpg", "partner-2.jpg"],
+    "images/Taqi-hero1.webp": ["Taqi-hero1.webp", "hero-1.webp"],
+    "images/Taqi-hero2.webp": ["Taqi-hero2.webp", "hero-2.webp"],
+    "images/Taqi-hero3.webp": ["Taqi-hero3.webp", "hero-3.webp"],
+    "images/Taqi-hero4.webp": ["Taqi-hero4.webp", "hero-4.webp"],
+  };
+  for (const [targetPath, candidates] of Object.entries(requiredImages)) {
+    const target = join(ROOT, "build_php", targetPath);
+    if (existsSync(target)) continue;
+    const source = findUpload(candidates);
+    if (!source) {
+      console.warn(`  ⚠️ لم أعثر على أصل الصورة المطلوبة: ${targetPath}`);
+      continue;
+    }
+    mkdirSync(dirname(target), { recursive: true });
+    copyFileSync(source, target);
+    console.log(`  ✅ صورة الويب: ${targetPath}`);
+  }
+}
+
 // بعض السجلات القديمة في SQLite تشير إلى /images/<file> بينما الملف المصدر
 // موجود في public/uploads/<file>. أنشئ نسخة توافقية في images/ حتى تعمل
 // المدونة والباقات بعد نقل الموقع إلى Hostinger بنفس مسارات الواجهة الحالية.
@@ -397,17 +442,55 @@ console.log("  ✅ تم نسخ جميع المجلدات والصفحات الث
     }
   }
   imageDb.close();
-  const sourceUploads = join(ROOT, "artifacts/sabaik-almasa/public/uploads");
+  const sourceUploadRoots = [
+    join(ROOT, "artifacts/sabaik-almasa/public/uploads"),
+    join(ROOT, "uploads"),
+  ];
   const targetImages = join(ROOT, "build_php/images");
   mkdirSync(targetImages, { recursive: true });
   for (const filename of compatibilityImages) {
     const target = join(targetImages, filename);
     if (existsSync(target)) continue;
-    const source = join(sourceUploads, filename);
-    if (existsSync(source)) {
+    const source = sourceUploadRoots.map((root) => join(root, filename)).find(existsSync);
+    if (source) {
       copyFileSync(source, target);
       console.log(`  ✅ توافق مسار الصورة: /images/${filename}`);
     }
+  }
+}
+
+// Preserve old article image URLs found in prerendered HTML when the original
+// media file is no longer present in the source snapshot. A real fallback
+// keeps published pages from rendering broken images without changing their
+// URLs or removing their content.
+{
+  const fallbackAsset = join(ROOT, "build_php/images/seo/taqi-blog.jpg");
+  const referencedImages = new Set();
+  const collect = (dir) => {
+    for (const entry of readdirSync(dir)) {
+      const file = join(dir, entry);
+      const stat = statSync(file);
+      if (stat.isDirectory()) {
+        collect(file);
+        continue;
+      }
+      if (!/\.(html?|xml)$/i.test(entry)) continue;
+      const source = readFileSync(file, "utf8");
+      for (const match of source.matchAll(/(?:https?:\/\/[^/"'\s<>]+)?(\/images\/[^"'\s<>?#]+)/g)) {
+        try {
+          const relativePath = decodeURIComponent(match[1]).replace(/^\/+/, "");
+          if (relativePath.startsWith("images/")) referencedImages.add(relativePath);
+        } catch {}
+      }
+    }
+  };
+  collect(join(ROOT, "build_php"));
+  for (const relativePath of referencedImages) {
+    const target = join(ROOT, "build_php", relativePath);
+    if (existsSync(target) || !relativePath.startsWith("images/content/")) continue;
+    mkdirSync(dirname(target), { recursive: true });
+    copyFileSync(fallbackAsset, target);
+    console.log(`  ✅ صورة توافقية لمقال قديم: /${relativePath}`);
   }
 }
 

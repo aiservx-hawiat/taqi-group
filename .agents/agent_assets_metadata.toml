@@ -1,0 +1,30 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "atfaMmUizOUZ1HWPKBQE_"
+uri = "file://cleanflow-services-hostinger.zip"
+type = "unspecified"
+title = "حزمة Hostinger النهائية"
+description = "الحزمة الكاملة الجاهزة للاستخراج مباشرة داخل public_html بعد أخذ نسخة احتياطية."
+logical_id = "144ed429-a123-4d79-aced-ac2c057b66b3"
+content_hash = "sha256:73d8f6563c3c5c352352cad302ca6e38329689c8ca798957bac5a6f1c76da485"
+size = 27047595
+mtime_ms = 1788245445667
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:5643bc9e-f3b2-4aa3-9d5b-c2f55bfa108b/144ed429-a123-4d79-aced-ac2c057b66b3/a3e5c8e4-fada-4035-b4c6-8547ff45d33f"
+storage_version_token = "1788245570665780"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "am3hJYOQzrnhA0cwCZ4ML"
+uri = "file://taqi-group-hostinger.zip"
+type = "unspecified"
+title = "حزمة Hostinger التوافقية"
+description = "نسخة مطابقة تمامًا للحزمة النهائية باسم التوافق السابق."
+logical_id = "184c367f-8bec-4dbb-accb-a2b5a8a9567d"
+content_hash = "sha256:73d8f6563c3c5c352352cad302ca6e38329689c8ca798957bac5a6f1c76da485"
+size = 27047595
+mtime_ms = 1788245445724
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:5643bc9e-f3b2-4aa3-9d5b-c2f55bfa108b/184c367f-8bec-4dbb-accb-a2b5a8a9567d/1d4023d4-7922-484d-b377-d1979c08c99f"
+storage_version_token = "1788245571779869"
+content_type = "application/octet-stream"

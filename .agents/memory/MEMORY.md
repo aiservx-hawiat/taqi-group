@@ -1,1 +1,2 @@
 - [Workflow refresh after installs](workflow-refresh-after-installs.md) — restart managed workflows after dependency installs so they do not keep serving a deleted pre-install process.
+- [Hostinger release gate](hostinger-release-gate.md) — treat the archive as releasable only after ZIP integrity and the full SEO gate both pass.
